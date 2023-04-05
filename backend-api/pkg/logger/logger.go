@@ -18,7 +18,7 @@ type logLevel struct {
 	Warning *log.Logger
 }
 
-func NewLog() (*logLevel, error) {
+func NewLog() *logLevel {
 	// logFile, err := os.OpenFile("/home/student/real-time-forum-golang/pkg/logger/log.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	// if os.IsNotExist(err) {
 	// 	logFile, err = os.Create("/home/student/real-time-forum-golang/pkg/logger/log.log")
@@ -36,5 +36,5 @@ func NewLog() (*logLevel, error) {
 		Error:   errorLog,
 		Warning: warningLog,
 	}
-	return &newLog, nil
+	return &newLog
 }
