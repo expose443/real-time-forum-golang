@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/expose443/real-time-forum-golang/backend-api/internal/handlers"
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/repository"
 	"github.com/expose443/real-time-forum-golang/backend-api/pkg/config"
 	"github.com/expose443/real-time-forum-golang/backend-api/pkg/logger"
@@ -25,5 +24,5 @@ func main() {
 	defer db.Close()
 	logger.Info.Printf("database is ready")
 
-	handler := handlers.NewClient()
+	// handler := handlers.NewClient()
 }
