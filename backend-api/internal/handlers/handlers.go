@@ -1,13 +1,20 @@
 package handlers
 
-import "github.com/expose443/real-time-forum-golang/backend-api/pkg/logger"
+import (
+	"github.com/expose443/real-time-forum-golang/backend-api/internal/service"
+	"github.com/expose443/real-time-forum-golang/backend-api/pkg/config"
+	"github.com/expose443/real-time-forum-golang/backend-api/pkg/logger"
+)
 
 type Client struct {
-	logger *logger.LogLevel
+	AuthService service.AuthService
+	Logger      *logger.LogLevel
+	Config      *config.Config
 }
 
-func NewClient(logger *logger.LogLevel) *Client {
+func NewClient(s Client) *Client {
 	return &Client{
-		logger: logger,
+		Logger:      s.Logger,
+		AuthService: s.AuthService,
 	}
 }

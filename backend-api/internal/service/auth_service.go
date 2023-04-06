@@ -2,12 +2,14 @@ package service
 
 import "github.com/expose443/real-time-forum-golang/backend-api/internal/repository"
 
-type AuthService struct {
-	*repository.UserRepository
+type AuthService interface{}
+
+func NewAuthService(dao repository.DAO) AuthService {
+	return &authService{
+		userRepo: dao.NewUserRepo(),
+	}
 }
 
-func NewAuthService(userRepo *repository.UserRepository) *AuthService {
-	return &AuthService{
-		userRepo,
-	}
+type authService struct {
+	userRepo repository.UserRepository
 }

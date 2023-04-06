@@ -11,11 +11,11 @@ func (c *Client) Login(w http.ResponseWriter, r *http.Request) {
 	var credintails models.Credintails
 	err := json.NewDecoder(r.Body).Decode(&credintails)
 	if err != nil {
-		c.logger.Error.Print(err)
+		c.Logger.Error.Print(err)
 		return
 	}
 
-	c.logger.Debug.Print(credintails)
+	c.Logger.Debug.Print(credintails)
 }
 
 func (c *Client) Register(w http.ResponseWriter, r *http.Request) {

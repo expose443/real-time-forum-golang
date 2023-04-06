@@ -1,7 +1,11 @@
 package main
 
 import (
-	"net/http"
+	"context"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/handlers"
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/repository"
@@ -19,7 +23,6 @@ func main() {
 		logger.Error.Fatal(err)
 		return
 	}
-
 	logger.Warning.Printf("using %s file for set up", configFile)
 
 	db, err := repository.NewSqliteDB(&cfg.DB)
@@ -29,13 +32,34 @@ func main() {
 	defer db.Close()
 	logger.Info.Printf("database is ready")
 
-	repository := repository.NewRepository(db)
+	dao := repository.NewDao(db)
+	authService := service.NewAuthService(dao)
 
-	authService := service.NewAuthService(repository.UserRepository)
+	app := handlers.Client{
+		Logger:      logger,
+		AuthService: authService,
+		Config:      cfg,
+	}
 
-	app := handlers.NewClient(logger)
+	server := app.Server()
 
-	router := http.NewServeMux()
-	app.SetupEndpoints(router)
-	logger.Error.Fatal(http.ListenAndServe(":8080", router))
+	go func() {
+		logger.Info.Printf("server started at %s", cfg.Address)
+		if err := server.ListenAndServe(); err != nil {
+			logger.Error.Print(err)
+		}
+	}()
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+	<-shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	logger.Info.Print("shutting down server...")
+
+	if err := server.Shutdown(ctx); err != nil {
+		logger.Error.Printf("server shutdown: %s", err)
+	} else {
+		logger.Info.Print("server gracefully stoped")
+	}
 }

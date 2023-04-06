@@ -1,5 +1,12 @@
 {
     "database":{
         "database_name": "database.db"
+    },
+    "http":{
+        "port": ":9090",
+        "idle_timeout": 30,
+        "write_timeout": 30,
+        "read_timeout": 30,
+        "address": "http://localhost:9090"
     }
 }

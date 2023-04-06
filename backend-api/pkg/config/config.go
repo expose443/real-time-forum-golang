@@ -7,11 +7,20 @@ import (
 )
 
 type Config struct {
-	DB `json:"database"`
+	DB     `json:"database"`
+	Server `json:"http"`
 }
 
 type DB struct {
 	Dbname string `json:"database_name"`
+}
+
+type Server struct {
+	Address      string `json:"address"`
+	Port         string `json:"port"`
+	IdleTimeout  int    `json:"idle_timeout"`
+	WriteTimeout int    `json:"write_timeout"`
+	ReadTimeout  int    `json:"read_timeout"`
 }
 
 func Init(path string) (*Config, error) {

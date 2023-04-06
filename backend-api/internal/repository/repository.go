@@ -2,22 +2,22 @@ package repository
 
 import "database/sql"
 
-type Repository struct {
-	*UserRepository
+type DAO interface {
+	NewUserRepo() UserRepository
 }
 
-func NewRepository(db *sql.DB) *Repository {
-	return &Repository{
-		NewUserRepository(db),
-	}
-}
-
-type UserRepository struct {
+type dao struct {
 	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB) *UserRepository {
-	return &UserRepository{
+func NewDao(db *sql.DB) DAO {
+	return &dao{
 		db: db,
+	}
+}
+
+func (d dao) NewUserRepo() UserRepository {
+	return &userRepository{
+		db: d.db,
 	}
 }
