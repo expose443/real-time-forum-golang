@@ -1,7 +1,13 @@
 package handlers
 
-type Client struct{}
+import "github.com/expose443/real-time-forum-golang/backend-api/pkg/logger"
 
-func NewClient() *Client {
-	return &Client{}
+type Client struct {
+	logger *logger.LogLevel
+}
+
+func NewClient(logger *logger.LogLevel) *Client {
+	return &Client{
+		logger: logger,
+	}
 }
