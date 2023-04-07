@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/expose443/real-time-forum-golang/backend-api/internal/jwt"
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/models"
 )
 
@@ -21,8 +23,29 @@ func (c *Client) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(400)
 		return
 	}
+
+	expiry := time.Now().Add(time.Minute * 5)
+	expiryStr := expiry.Format(time.DateTime)
+	claims := map[string]interface{}{
+		"exp": expiryStr,
+		"sub": user.ID,
+	}
+
+	jwtToken, err := jwt.CreateJWT(claims)
+	if err != nil {
+		c.logger.Error.Print(err)
+		w.WriteHeader(500)
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Value:   jwtToken,
+		Name:    "jwt_token",
+		Expires: expiry,
+	})
+
 	w.WriteHeader(200)
-	fmt.Fprintf(w, "hello %s", user.FirstName)
+	fmt.Fprintf(w, "hello token: %s", jwtToken)
 }
 
 func (c *Client) Register(w http.ResponseWriter, r *http.Request) {

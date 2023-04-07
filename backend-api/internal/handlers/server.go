@@ -10,8 +10,8 @@ import (
 func (app *Client) Server() *http.Server {
 	router := http.NewServeMux()
 
-	router.HandleFunc("/login", middleware.POST(app.Login))
-	router.HandleFunc("/register", middleware.POST(app.Register))
+	router.HandleFunc("/login", middleware.POST(middleware.Auth(app.Login)))
+	router.HandleFunc("/register", middleware.POST((middleware.Auth(app.Register))))
 
 	return &http.Server{
 		ReadTimeout:  time.Second * time.Duration(app.config.ReadTimeout),

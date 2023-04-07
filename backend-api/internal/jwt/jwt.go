@@ -1,17 +1,27 @@
 package jwt
 
 import (
-	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 )
 
-func CreateJWT(secretKey string, claims map[string]interface{}) (string, error) {
+var secretKey = func() string {
+	body, err := os.ReadFile("././secret.txt")
+	if err != nil {
+		fmt.Println(err)
+		return "asdfasdfasdfasdfasdfasdfasdfasdfasdfasdfasfdasdfsadfasdf"
+	}
+	return string(body)
+}
+
+func CreateJWT(claims map[string]interface{}) (string, error) {
 	header := map[string]string{
 		"alg": "HS256",
 		"typ": "JWT",
@@ -22,18 +32,15 @@ func CreateJWT(secretKey string, claims map[string]interface{}) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	fmt.Println(headerBytes)
 	encodedHeader := base64.RawURLEncoding.EncodeToString(headerBytes)
-	fmt.Println(encodedHeader)
 	claimsBytes, err := json.Marshal(claims)
 	if err != nil {
 		return "", err
 	}
 	encodedClaims := base64.RawURLEncoding.EncodeToString(claimsBytes)
-	fmt.Println(encodedClaims)
 
 	data := []byte(encodedHeader + "." + encodedClaims)
-	h := hmac.New(sha256.New, []byte(secretKey))
+	h := hmac.New(sha256.New, []byte(secretKey()))
 	_, err = h.Write(data)
 	if err != nil {
 		return "", err
@@ -44,18 +51,18 @@ func CreateJWT(secretKey string, claims map[string]interface{}) (string, error) 
 	return token, nil
 }
 
-func VerifyJWT(secretKey string, token string) (bool, map[string]interface{}, error) {
+func VerifyJWT(token string) (bool, map[string]interface{}, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
-		return false, nil, nil
+		return false, nil, errors.New("len not 3")
 	}
 
 	headerBytes, err := base64.RawURLEncoding.DecodeString(parts[0])
 	if err != nil {
 		return false, nil, err
 	}
-	var header map[string]string
-	err = json.NewEncoder(bytes.NewBuffer(headerBytes)).Encode(&header)
+	var header map[string]interface{}
+	err = json.Unmarshal(headerBytes, &header)
 	if err != nil {
 		return false, nil, err
 	}
@@ -65,13 +72,12 @@ func VerifyJWT(secretKey string, token string) (bool, map[string]interface{}, er
 	if err != nil {
 		return false, nil, err
 	}
-	err = json.NewEncoder(bytes.NewBuffer(claimsBytes)).Encode(&claims)
+	err = json.Unmarshal(claimsBytes, &claims)
 	if err != nil {
 		return false, nil, err
 	}
-
 	if header["alg"] != "HS256" {
-		return false, nil, nil
+		return false, nil, errors.New("invalid algorithm type")
 	}
 
 	data := []byte(parts[0] + "." + parts[1])
@@ -79,21 +85,29 @@ func VerifyJWT(secretKey string, token string) (bool, map[string]interface{}, er
 	if err != nil {
 		return false, nil, err
 	}
-	h := hmac.New(sha256.New, []byte(secretKey))
+	h := hmac.New(sha256.New, []byte(secretKey()))
 	_, err = h.Write(data)
 	if err != nil {
 		return false, nil, err
 	}
 	if !hmac.Equal(signature, h.Sum(nil)) {
-		return false, nil, nil
+		return false, nil, errors.New("dont equal")
 	}
 
-	exp, ok := claims["exp"].(float64)
+	fmt.Println(claims)
+	exp, ok := claims["exp"].(string)
 	if !ok {
-		return false, nil, nil
+		return false, nil, errors.New("dont have exp")
 	}
-	if int64(exp) < time.Now().Unix() {
-		return false, nil, nil
+
+	expiry, err := time.Parse(time.DateTime, exp)
+	if err != nil {
+		return false, nil, err
 	}
+
+	if expiry.Before(time.Now()) {
+		return false, nil, errors.New("time before")
+	}
+
 	return true, claims, nil
 }
