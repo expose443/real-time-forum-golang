@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS users(
     password VARCHAR(100) NOT NULL,
     created TIMESTAMP NOT NULL,
     updated TIMESTAMP NOT NULL
-)
+);

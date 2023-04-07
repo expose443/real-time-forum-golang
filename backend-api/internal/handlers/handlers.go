@@ -7,14 +7,21 @@ import (
 )
 
 type Client struct {
+	authService service.AuthService
+	logger      *logger.LogLevel
+	config      *config.Config
+}
+
+type Services struct {
 	AuthService service.AuthService
 	Logger      *logger.LogLevel
 	Config      *config.Config
 }
 
-func NewClient(s Client) *Client {
+func NewClient(s Services) *Client {
 	return &Client{
-		Logger:      s.Logger,
-		AuthService: s.AuthService,
+		logger:      s.Logger,
+		authService: s.AuthService,
+		config:      s.Config,
 	}
 }

@@ -35,11 +35,11 @@ func main() {
 	dao := repository.NewDao(db)
 	authService := service.NewAuthService(dao)
 
-	app := handlers.Client{
+	app := handlers.NewClient(handlers.Services{
 		Logger:      logger,
 		AuthService: authService,
 		Config:      cfg,
-	}
+	})
 
 	server := app.Server()
 

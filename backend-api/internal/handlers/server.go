@@ -14,10 +14,10 @@ func (app *Client) Server() *http.Server {
 	router.HandleFunc("/register", middleware.POST(app.Register))
 
 	return &http.Server{
-		ReadTimeout:  time.Second * time.Duration(app.Config.ReadTimeout),
-		WriteTimeout: time.Second * time.Duration(app.Config.WriteTimeout),
-		IdleTimeout:  time.Second * time.Duration(app.Config.IdleTimeout),
-		Addr:         app.Config.Port,
+		ReadTimeout:  time.Second * time.Duration(app.config.ReadTimeout),
+		WriteTimeout: time.Second * time.Duration(app.config.WriteTimeout),
+		IdleTimeout:  time.Second * time.Duration(app.config.IdleTimeout),
+		Addr:         app.config.Port,
 		Handler:      router,
 	}
 }
