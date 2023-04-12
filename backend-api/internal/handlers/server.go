@@ -12,6 +12,7 @@ func (app *Client) Server() *http.Server {
 
 	router.HandleFunc("/login", middleware.POST(middleware.Auth(app.Login)))
 	router.HandleFunc("/register", middleware.POST((middleware.Auth(app.Register))))
+	router.HandleFunc("/ws", app.WsHandler)
 
 	return &http.Server{
 		ReadTimeout:  time.Second * time.Duration(app.config.ReadTimeout),
