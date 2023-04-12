@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+    <script>
+        // const socket = new WebSocket('ws://localhost:9090/ws');
+
+        // socket.onopen = function(event) {
+        //     console.log('Соединение установлено');
+        // };
+
+        // socket.onmessage = function(event) {
+        //     console.log('Получено сообщение:', event.data);
+        // };
+
+        // socket.onclose = function(event) {
+        //     console.log('Соединение закрыто');
+        // };
+
+        // socket.onerror = function(error) {
+        //     console.log('Произошла ошибка:', error);
+        // };
+
+        let socket = new WebSocket("ws://localhost:9090/ws");
+
+        socket.onopen = function(e) {
+        alert("[open] Connection established");
+        alert("Sending to server");
+        socket.send("My name is John");
+        };
+
+        socket.onmessage = function(event) {
+        alert(`[message] Data received from server: ${event.data}`);
+        };
+
+        socket.onclose = function(event) {
+        if (event.wasClean) {
+            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+            // e.g. server process killed or network down
+            // event.code is usually 1006 in this case
+            alert('[close] Connection died');
+        }
+        };
+
+        socket.onerror = function(error) {
+        alert(`[error]`);
+        };
+    </script>
+</body>
+</html>
