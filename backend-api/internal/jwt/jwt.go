@@ -94,13 +94,13 @@ func VerifyJWT(token string) (bool, map[string]interface{}, error) {
 		return false, nil, errors.New("dont equal")
 	}
 
-	fmt.Println(claims)
+	// fmt.Println(claims)
 	exp, ok := claims["exp"].(string)
 	if !ok {
 		return false, nil, errors.New("dont have exp")
 	}
 
-	expiry, err := time.Parse(time.DateTime, exp)
+	expiry, err := time.Parse(time.RFC3339, exp)
 	if err != nil {
 		return false, nil, err
 	}
