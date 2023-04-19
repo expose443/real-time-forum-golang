@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/models"
 )
@@ -18,7 +19,7 @@ type userRepository struct {
 
 func (u *userRepository) CreateUser(user *models.User) error {
 	query := `INSERT INTO users(nickname, age, gender, first_name, last_name, email, password, created, updated) values(?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	_, err := u.db.Exec(query, user.Nickname, user.Age, user.Gender, user.FirstName, user.LastName, user.Email, user.Password, user.Created, user.Updated)
+	_, err := u.db.Exec(query, user.Nickname, user.Age, user.Gender, user.FirstName, user.LastName, user.Email, user.Password, time.Now(), time.Now())
 	return err
 }
 

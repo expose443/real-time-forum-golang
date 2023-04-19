@@ -24,7 +24,7 @@ func (c *Client) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiry := time.Now().Add(time.Minute * 5)
+	expiry := time.Now().Add(time.Minute * 60)
 	expiryStr := expiry.Format(time.DateTime)
 	claims := map[string]interface{}{
 		"exp": expiryStr,

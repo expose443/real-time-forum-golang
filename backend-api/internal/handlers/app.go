@@ -16,29 +16,6 @@ var upgrader = websocket.Upgrader{
 }
 
 func (app *Client) WsHandler(w http.ResponseWriter, r *http.Request) {
-	// // Определяем соединение
-	// conn, err := upgrader.Upgrade(w, r, nil)
-	// if err != nil {
-	// 	app.logger.Error.Println("Ошибка создания соединения:", err)
-	// 	return
-	// }
-
-	// // Обрабатываем сообщения от клиента
-	// for {
-	// 	_, _, err := conn.ReadMessage()
-	// 	if err != nil {
-	// 		app.logger.Error.Println("Ошибка чтения сообщения:", err)
-	// 		break
-	// 	}
-
-	// 	// Отправляем сообщение обратно клиенту
-	// 	err = conn.WriteMessage(websocket.TextMessage, []byte(r.URL.Path))
-	// 	if err != nil {
-	// 		app.logger.Error.Println("Ошибка отправки сообщения:", err)
-	// 		break
-	// 	}
-	// }
-
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		app.logger.Error.Println("Ошибка создания соединения:", err)
@@ -46,6 +23,7 @@ func (app *Client) WsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	for {
 		_, message, err := conn.ReadMessage()
+		fmt.Println(r.Cookie("jwt_token"))
 		if err != nil {
 			app.logger.Error.Println("Ошибка чтения сообщения:", err)
 			break
