@@ -21,13 +21,13 @@ var secretKey = func() string {
 	return string(body)
 }
 
-func CreateJWT(claims map[string]interface{}) (string, error) {
+func CreateJWT(claims map[string]string) (string, error) {
 	header := map[string]string{
 		"alg": "HS256",
 		"typ": "JWT",
 	}
 
-	claims["iat"] = time.Now()
+	claims["iat"] = time.Now().Format(time.RFC3339)
 	headerBytes, err := json.Marshal(header)
 	if err != nil {
 		return "", err
@@ -51,7 +51,7 @@ func CreateJWT(claims map[string]interface{}) (string, error) {
 	return token, nil
 }
 
-func VerifyJWT(token string) (bool, map[string]interface{}, error) {
+func VerifyJWT(token string) (bool, map[string]string, error) {
 	parts := strings.Split(token, ".")
 	if len(parts) != 3 {
 		return false, nil, errors.New("len not 3")
@@ -67,7 +67,7 @@ func VerifyJWT(token string) (bool, map[string]interface{}, error) {
 		return false, nil, err
 	}
 
-	var claims map[string]interface{}
+	var claims map[string]string
 	claimsBytes, err := base64.RawURLEncoding.DecodeString(parts[1])
 	if err != nil {
 		return false, nil, err
@@ -94,8 +94,7 @@ func VerifyJWT(token string) (bool, map[string]interface{}, error) {
 		return false, nil, errors.New("dont equal")
 	}
 
-	// fmt.Println(claims)
-	exp, ok := claims["exp"].(string)
+	exp, ok := claims["exp"]
 	if !ok {
 		return false, nil, errors.New("dont have exp")
 	}

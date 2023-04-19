@@ -13,6 +13,7 @@ import (
 type AuthService interface {
 	IsValidUser(identifier any, password string) (models.User, error)
 	CreateUser(user *models.User) error
+	GetUserById(identifier any) (models.User, error)
 }
 
 func NewAuthService(dao repository.DAO) AuthService {
@@ -65,4 +66,25 @@ func (a *authService) CreateUser(user *models.User) error {
 		return errors.New("user exists")
 	}
 	return a.userRepo.CreateUser(user)
+}
+
+func (a *authService) GetUserById(identifier any) (models.User, error) {
+	var id int
+	var err error
+	switch v := identifier.(type) {
+	case string:
+		id, err = strconv.Atoi(identifier.(string))
+		if err != nil {
+			return models.User{}, fmt.Errorf("invalid identifier %q: %w", identifier, err)
+		}
+	case int:
+		id = v
+	default:
+		return models.User{}, fmt.Errorf("unexpected identifier type %T", identifier)
+	}
+	user, err := a.userRepo.GetUserByUserID(id)
+	if err != nil {
+		return models.User{}, fmt.Errorf("failed to get user by id %d: %w", id, err)
+	}
+	return user, nil
 }

@@ -24,7 +24,7 @@ func (app *Client) WsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	for {
-		status, _, err := jwt.VerifyJWT(c.Value)
+		status, datauser, err := jwt.VerifyJWT(c.Value)
 		if !status || err != nil {
 			f := conn.CloseHandler()
 			err = f(401, "test")
@@ -39,7 +39,18 @@ func (app *Client) WsHandler(w http.ResponseWriter, r *http.Request) {
 			app.logger.Error.Println("Ошибка чтения сообщения:", err)
 			break
 		}
+		idStr, ok := datauser["sub"]
+		if !ok {
+			app.logger.Error.Println("exp dont exist")
+			conn.Close()
+		}
+		user, err := app.authService.GetUserById(idStr)
+		if err != nil {
+			app.logger.Error.Println(err)
+		}
+		fmt.Println(user)
+
 		conn.WriteMessage(websocket.TextMessage, []byte(fmt.Sprintf("hello from server %s ", message)))
-		app.logger.Debug.Println(message)
+		app.logger.Debug.Println(string(message))
 	}
 }

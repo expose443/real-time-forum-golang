@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/jwt"
@@ -24,11 +25,11 @@ func (c *Client) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	expiry := time.Now().Add(time.Second * 10)
+	expiry := time.Now().Add(time.Minute * 10)
 	expiryStr := expiry.Format(time.RFC3339)
-	claims := map[string]interface{}{
+	claims := map[string]string{
 		"exp": expiryStr,
-		"sub": user.ID,
+		"sub": strconv.Itoa(user.ID),
 	}
 
 	jwtToken, err := jwt.CreateJWT(claims)
