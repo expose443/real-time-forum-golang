@@ -13,9 +13,9 @@ func (app *Client) Server() *http.Server {
 	router := chi.NewRouter()
 
 	router.Use(middleware.Logger)
-	router.HandleFunc("/login", middle.POST(middle.Auth(app.Login)))
-	router.HandleFunc("/register", middle.POST((middle.Auth(app.Register))))
-	router.HandleFunc("/ws", app.WsHandler)
+	router.HandleFunc("/login", middle.POST(middle.AuthRedirectMiddleware(app.Login)))
+	router.HandleFunc("/register", middle.POST((middle.AuthRedirectMiddleware(app.Register))))
+	router.HandleFunc("/ws", middle.RequireAuthMiddleware(app.WsHandler))
 
 	return &http.Server{
 		ReadTimeout:  time.Second * time.Duration(app.config.ReadTimeout),

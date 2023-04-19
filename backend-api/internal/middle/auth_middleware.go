@@ -7,7 +7,7 @@ import (
 	"github.com/expose443/real-time-forum-golang/backend-api/internal/jwt"
 )
 
-func Auth(next http.HandlerFunc) http.HandlerFunc {
+func AuthRedirectMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie("jwt_token")
 		if err != nil {
@@ -20,6 +20,28 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 		}
 		if status {
 			http.Redirect(w, r, "/home", http.StatusFound)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+func RequireAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		c, err := r.Cookie("jwt_token")
+		if err != nil {
+			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
+			return
+		}
+		status, _, err := jwt.VerifyJWT(c.Value)
+		if err != nil {
+			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
+			fmt.Println(err)
+			return
+
+		}
+		if !status {
+			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r)
