@@ -30,18 +30,18 @@ func RequireAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie("jwt_token")
 		if err != nil {
-			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		status, _, err := jwt.VerifyJWT(c.Value)
 		if err != nil {
-			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			fmt.Println(err)
 			return
 
 		}
 		if !status {
-			http.Redirect(w, r, "/sign-in", http.StatusUnauthorized)
+			http.Error(w, err.Error(), http.StatusUnauthorized)
 			return
 		}
 		next.ServeHTTP(w, r)
