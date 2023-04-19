@@ -33,7 +33,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./templates/static/"))
 	router.Handle("/static/", http.StripPrefix("/static", fs))
 
-	router.HandleFunc("/ws", webSocket)
+	router.HandleFunc("/", webSocket)
 	router.HandleFunc("/sign-in", Signin)
 	router.HandleFunc("/sign-up", Signup)
 	log.Fatal(http.ListenAndServe(":8080", router))
@@ -77,18 +77,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		req, err := http.NewRequest(http.MethodPost, "http://localhost:9090/login", bytes.NewBuffer(body))
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer req.Body.Close()
-		client := http.Client{
-			Timeout: 10 * time.Second,
-		}
-		res, err := client.Do(req)
-		if err != nil {
-			fmt.Println(err)
-		}
+		res, err := http.Post("http://localhost:9090/login", "application/json", bytes.NewReader(body))
 		if res.StatusCode != 200 {
 			w.WriteHeader(res.StatusCode)
 			return
@@ -100,6 +89,7 @@ func Signin(w http.ResponseWriter, r *http.Request) {
 			Value:   token[0].Value,
 			Name:    "jwt_token",
 		})
+		http.Redirect(w, r, "/", http.StatusFound)
 
 	}
 }
@@ -155,6 +145,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(res.StatusCode)
 			return
 		}
+		http.Redirect(w, r, "/sign-in", http.StatusFound)
 		// identity := r.FormValue("identity")
 		// password := r.FormValue("password")
 

@@ -1,47 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <title>WebSocket Test</title>
 </head>
 <body>
-    
-    <script>        
-        let socket = new WebSocket("ws://localhost:9090/ws");
-        window.addEventListener("beforeunload", function(){
-            socket.close(1005, "user-refresh page");
-        });
+  <h1>WebSocket Test</h1>
+  <input type="text" id="messageInput">
+  <button id="sendButton">Send</button>
+  <p id="messageOutput"></p>
+  <script>
+    let socket = new WebSocket("ws://localhost:9090/ws");
+    const sendButton = document.getElementById('sendButton');
+    const messageInput = document.getElementById('messageInput');
+    const messageOutput = document.getElementById('messageOutput');
 
-        socket.onopen = function(e) {
-        alert("[open] Connection established");
-        alert("Sending to server");
-        socket.send("My name is John");
-        };
+    // Отправить сообщение на сервер при нажатии на кнопку
+    sendButton.addEventListener('click', () => {
+      const message = messageInput.value;
+      socket.send(message);
+    });
 
-        socket.onmessage = function(event) {
-        alert(`[message] Data received from server: ${event.data}`);
-        console.log(event.data);
-        let message = event.data;
-        let messageElement = document.getElementById("message");
-        messageElement.innerHTML = message;
-        };
-
-        socket.onclose = function(event) {
-        if (event.wasClean) {
-            alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        } else {
-            alert('[close] Connection died');
-        }
-        };
-
-        socket.onerror = function(error) {
-        alert(`[error]`);
-        };
-    </script>
-    <p id="message">
-       
-    </p>
+    // Принять сообщение от сервера
+    socket.addEventListener('message', (event) => {
+      const message = event.data;
+      messageOutput.textContent = message;
+    });
+  </script>
 </body>
 </html>
