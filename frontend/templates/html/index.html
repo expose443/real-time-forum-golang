@@ -14,18 +14,35 @@
     const sendButton = document.getElementById('sendButton');
     const messageInput = document.getElementById('messageInput');
     const messageOutput = document.getElementById('messageOutput');
+    
+    socket.onerror = function(event) {
+      alert('Сервер недоступен')
+      console.log(event)
+      if (event.code === 1006) {
+      } else{
+        
+        window.location.href = "/sign-in"; // перенаправление на страницу входа
+      }
+    };
 
+    socket.onclose = function(event){
+      if (event.code === 401){
+
+        alert('Времся сессий истекла')
+        window.location.href = "/sign-in"; // перенаправление на страницу входа
+      }
+    };
     // Отправить сообщение на сервер при нажатии на кнопку
     sendButton.addEventListener('click', () => {
       const message = messageInput.value;
       socket.send(message);
     });
-
+    
     // Принять сообщение от сервера
     socket.addEventListener('message', (event) => {
       const message = event.data;
       messageOutput.textContent = message;
     });
-  </script>
+    </script>
 </body>
 </html>
